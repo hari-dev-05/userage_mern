@@ -1,0 +1,7 @@
+Steps to run:
+
+1. Install Docker Desktop
+2. git clone https://github.com/hari-dev-05/userage_mern.git
+3. cd userage_mern
+4. docker-compose up --build
+5. Open http://localhost:5173

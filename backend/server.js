@@ -26,7 +26,7 @@ app.post("/users", (req, res) => {
   });
 });
 
-/* GET: fetch users (optional but useful) */
+/* GET: fetch users */
 app.get("/users", (req, res) => {
   db.query("SELECT * FROM users", (err, rows) => {
     if (err) {

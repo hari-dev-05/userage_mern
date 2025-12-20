@@ -1,8 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function App() {
   const [username, setUsername] = useState("");
   const [age, setAge] = useState("");
+  const [users, setUsers] = useState([]);
+
+  // Fetch users
+  const fetchUsers = async () => {
+    const res = await fetch("http://localhost:5000/users");
+    const data = await res.json();
+    setUsers(data);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,79 +26,127 @@ export default function App() {
 
     await fetch("http://localhost:5000/users", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, age }),
     });
 
     setUsername("");
     setAge("");
-    alert("User added");
+    fetchUsers();
   };
 
   return (
-    <div style={styles.container}>
-      <form style={styles.card} onSubmit={handleSubmit}>
-        <h2 style={styles.title}>Add User</h2>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h2 style={styles.heading}>Add User</h2>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={styles.input}
-        />
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            style={styles.input}
+            placeholder="Age"
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
+          <button style={styles.button}>Add User</button>
+        </form>
+      </div>
 
-        <input
-          type="number"
-          placeholder="Age"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          style={styles.input}
-        />
+      <div style={styles.card}>
+        <h2 style={styles.heading}>Users List</h2>
 
-        <button type="submit" style={styles.button}>
-          Submit
-        </button>
-      </form>
+        {users.length === 0 ? (
+          <p style={styles.empty}>No users yet</p>
+        ) : (
+          <ul style={styles.list}>
+            {users.map((u) => (
+              <li key={u.id} style={styles.listItem}>
+                <span>{u.username}</span>
+                <span style={styles.age}>{u.age}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
 
+/* 🎨 Styles */
 const styles = {
-  container: {
-    height: "100vh",
+  page: {
+    minHeight: "100vh",
+    background: "#f4f6f8",
     display: "flex",
+    gap: "30px",
     justifyContent: "center",
-    alignItems: "center",
-    background: "#f2f2f2",
+    alignItems: "flex-start",
+    padding: "40px",
+    fontFamily: "Segoe UI, sans-serif",
   },
+
   card: {
     background: "#fff",
-    padding: "30px",
-    borderRadius: "8px",
-    width: "300px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+    padding: "25px",
+    borderRadius: "10px",
+    width: "320px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "20px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
+
+  heading: {
     marginBottom: "15px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
+    color: "#333",
   },
-  button: {
-    width: "100%",
+
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+
+  input: {
     padding: "10px",
-    background: "#007bff",
-    color: "#fff",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "14px",
+  },
+
+  button: {
+    padding: "10px",
+    borderRadius: "6px",
     border: "none",
-    borderRadius: "5px",
+    background: "#2563eb",
+    color: "#fff",
+    fontSize: "15px",
     cursor: "pointer",
+  },
+
+  list: {
+    listStyle: "none",
+    padding: 0,
+    marginTop: "10px",
+  },
+
+  listItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "10px",
+    borderBottom: "1px solid #eee",
+  },
+
+  age: {
+    color: "#2563eb",
+    fontWeight: "bold",
+  },
+
+  empty: {
+    color: "#777",
+    fontStyle: "italic",
   },
 };
